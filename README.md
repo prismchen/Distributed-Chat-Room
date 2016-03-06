@@ -21,12 +21,13 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 		
 ## Usage
 
-First step would be modify the config file of each chatter, which are all identical so that each chatter knows the existance of others<br>
+First step would be modifying the config files of each chatter, which are all identical so that each chatter knows the existance of others<br>
+<div>
 1st line: lower-bound-of-delay	upper-bound-of-delay<br>
 2st line: chatter-id	IP	Port Number<br>
 3rd line: chatter-id	IP	Port Number<br>
 4th line: chatter-id	IP	Port Number<br>
-...
+... </div>
 
 ### Casual Ordering
 - javac src/casualOrder/*.java -d bin
