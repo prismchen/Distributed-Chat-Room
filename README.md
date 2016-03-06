@@ -1,5 +1,7 @@
 # Distributed-Chat-Room
 
+## Introduction
+
 ## The workflow: 
 1. Construct a new tf object (tf is the main object function as each chatting individual), while reading in config file
 2. Create a serverSocket, listener to listen for incoming client connection
@@ -14,23 +16,23 @@
 8. For casual ordering, vector stamp is appended at the end of each message
 9. For total ordering, a special process, sequencer, is created, and it send message with sequence number to other processes
 		
-## How to execute:
-Casual Ordering:
-cd cs425MP1/src
-javac casualOrder/*.java
-(open four terminals and run each of the following commands):
-java casualOrder/tf1 9001
-java casualOrder/tf2 9002
-java casualOrder/tf3 9003
-java casualOrder/tf4 9004
+## Usage
+### Casual Ordering
+- cd cs425MP1/src
+- javac casualOrder/*.java
+- (open four terminals and run each of the following commands)
+- java casualOrder/tf1 9001
+- java casualOrder/tf2 9002
+- java casualOrder/tf3 9003
+- java casualOrder/tf4 9004
 	
-## Total Ordering:
-cd cs425MP1/src
-javac totalOrder/*.java
-(open four terminals and run each of the following commands):
-java totalOrder/tf1 9001
-java totalOrder/tf2 9002
-java totalOrder/tf3 9003
-java totalOrder/tf4 9004
-java totalOrder/Sequencer 9005
+### Total Ordering
+- cd cs425MP1/src
+- javac totalOrder/*.java
+- (open four terminals and run each of the following commands)
+- java totalOrder/tf1 9001
+- java totalOrder/tf2 9002
+- java totalOrder/tf3 9003
+- java totalOrder/tf4 9004
+- java totalOrder/Sequencer 9005
 	
