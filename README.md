@@ -2,7 +2,10 @@
 
 ## Introduction
 
-## The workflow: 
+This project presents a distributed chat room. Each chatter keeps a membership list (config file) to be informed of all the existing chatters other than itself. Each chatter use multicast to send messages, and message is delivered in either casual ordering or total ordering. 
+
+## Workflow in Each Chatter
+0. No central server existed, each chatter performs as a server and a client as well.
 1. Construct a new tf object (tf is the main object function as each chatting individual), while reading in config file
 2. Create a serverSocket, listener to listen for incoming client connection
 3. Create a new thread, inputHandler, to read in user's type-in
