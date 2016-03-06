@@ -6,7 +6,7 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 
 ## Workflow in Each Chatter
 0. No central server existed, each chatter performs as a server and a client as well.
-1. Construct a new tf object (tf is the main object function as each chatting individual), while reading in config file
+1. Construct a new chatter object, while reading in config file
 2. Create a serverSocket, listener to listen for incoming client connection
 3. Create a new thread, inputHandler, to read in user's type-in
 4. Create a new thread, printHandler, to check if deliverQueue is empty and deliver message from it based on the prescribed order
@@ -14,8 +14,7 @@ This project presents a distributed chat room. Each chatter keeps a membership l
    each client process
 6. Inside each client handler, for each message received, create a new thread, msgGetter, to process this message, including 
    delay simulation and push the message into the holdback queue, and further into deliver queue.
-7. Inside inputHandler, users type-in is firstly parsed, then it goes to either unicast_send or multicast, which calls
-   several unicast_sent.
+7. Inside inputHandler, users' type-in is firstly parsed, then it goes to multicast
 8. For casual ordering, vector stamp is appended at the end of each message
 9. For total ordering, a special process, sequencer, is created, and it send message with sequence number to other processes
 		
@@ -23,11 +22,15 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 
 First step would be modifying the config files of each chatter, which are all identical so that each chatter knows the existance of others<br>
 
-1st line: lower-bound-of-delay	upper-bound-of-delay<br>
-2st line: chatter-id	IP	Port Number<br>
-3rd line: chatter-id	IP	Port Number<br>
-4th line: chatter-id	IP	Port Number<br>
-... 
+Config file format: 
+
+	1st line: lower-bound-of-delay	upper-bound-of-delay (in milli sec)
+	2st line: chatter-id	IP	Port Number
+	3rd line: chatter-id	IP	Port Number
+	4th line: chatter-id	IP	Port Number
+	... 
+
+For demo simplicity: we run 4 chatters on the same IP with different port numbers: 9001, 9002, 9003 and 9004, and for total ordering, we need to allocate port 9005 for the sequencer.
 
 ### Casual Ordering
 	javac src/casualOrder/*.java -d bin
@@ -45,4 +48,8 @@ First step would be modifying the config files of each chatter, which are all id
 	java totalOrder/chatter3 9003 config_TO
 	java totalOrder/chatter4 9004 config_TO
 	java totalOrder/Sequencer 9005 config_TO
+
+### Multicast Messages
+	
+	msend <message>
 	
