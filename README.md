@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project presents a distributed chat room. Each chatter keeps a membership list (config file) to be informed of all the existing chatters other than itself. Each chatter use multicast to send messages, and message is delivered in either casual ordering or total ordering. 
+This project presents a distributed chat room. Each chatter keeps a membership list (config file) to be informed of all the existing chatters other than itself. Each chatter use multicast to send messages, and message is delivered in either casual ordering or total ordering. In case of indistinguishable communication delay between chatters, an artificial random delay is added to each channel. 
 
 ## Workflow in Each Chatter
 0. No central server existed, each chatter performs as a server and a client as well.
@@ -20,6 +20,9 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 9. For total ordering, a special process, sequencer, is created, and it send message with sequence number to other processes
 		
 ## Usage
+
+
+
 ### Casual Ordering
 - cd cs425MP1/src
 - javac casualOrder/*.java
