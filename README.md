@@ -21,24 +21,27 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 		
 ## Usage
 
-
+First step would be modify the config file of each chatter, which are all identical so that each chatter knows the existance of others<br>
+1st line: lower-bound-of-delay	upper-bound-of-delay<br>
+2st line: chatter-id	IP	Port Number<br>
+3rd line: chatter-id	IP	Port Number<br>
+4th line: chatter-id	IP	Port Number<br>
+...
 
 ### Casual Ordering
-- cd cs425MP1/src
-- javac casualOrder/*.java
-- (open four terminals and run each of the following commands)
-- java casualOrder/tf1 9001
-- java casualOrder/tf2 9002
-- java casualOrder/tf3 9003
-- java casualOrder/tf4 9004
+- javac src/casualOrder/*.java -d bin
+- cd bin
+- java casualOrder/chatter1 9001 config_CA
+- java casualOrder/chatter2 9002 config_CA
+- java casualOrder/chatter3 9003 config_CA
+- java casualOrder/chatter4 9004 config_CA
 	
 ### Total Ordering
-- cd cs425MP1/src
-- javac totalOrder/*.java
-- (open four terminals and run each of the following commands)
-- java totalOrder/tf1 9001
-- java totalOrder/tf2 9002
-- java totalOrder/tf3 9003
-- java totalOrder/tf4 9004
-- java totalOrder/Sequencer 9005
+- javac src/totalOrder/*.java -d bin
+- cd bin
+- java totalOrder/chatter1 9001 config_TO
+- java totalOrder/chatter2 9002 config_TO
+- java totalOrder/chatter3 9003 config_TO
+- java totalOrder/chatter4 9004 config_TO
+- java totalOrder/Sequencer 9005 config_TO
 	
