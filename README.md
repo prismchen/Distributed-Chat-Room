@@ -22,7 +22,7 @@ This project presents a distributed chat room. Each chatter keeps a membership l
 ## Usage
 
 First step would be modifying the config files of each chatter, which are all identical so that each chatter knows the existance of others<br>
-<div>
+<div text-indent = 50px>
 1st line: lower-bound-of-delay	upper-bound-of-delay<br>
 2st line: chatter-id	IP	Port Number<br>
 3rd line: chatter-id	IP	Port Number<br>
