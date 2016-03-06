@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class tf1 {
+public class chatter3 {
 
 	private static int minDelay;
 	private static int maxDelay;
@@ -34,7 +34,7 @@ public class tf1 {
      * @param config
      * @throws Exception
      */
-    public tf1(String serverPort, String config) throws Exception {
+    public chatter3(String serverPort, String config) throws Exception {
 
     	recBuf = new ConcurrentLinkedQueue<String>();
     	
@@ -43,14 +43,14 @@ public class tf1 {
     	deliverQueue = new HashMap<String, String>();
     	seqNums = new HashMap<Integer, String>();
     	
-    	tf1.serverPort = Integer.parseInt(serverPort);
+    	chatter3.serverPort = Integer.parseInt(serverPort);
 
-		tf1.serverAddr = InetAddress.getLocalHost().getHostAddress();
+		chatter3.serverAddr = InetAddress.getLocalHost().getHostAddress();
 
-    	System.out.println("Server address: "+ tf1.serverAddr + " port: " + tf1.serverPort);
+    	System.out.println("Server address: "+ chatter3.serverAddr + " port: " + chatter3.serverPort);
 
-    	tf1.IPs = new HashMap<Integer, String>();
-    	tf1.Ports = new HashMap<Integer, Integer>();
+    	chatter3.IPs = new HashMap<Integer, String>();
+    	chatter3.Ports = new HashMap<Integer, Integer>();
 
     	try (BufferedReader br = new BufferedReader(new FileReader(config))) {
 
@@ -75,7 +75,7 @@ public class tf1 {
 					IPs.put(id, ip);
 					Ports.put(id, port);
 					
-					if ((ip.equals(tf1.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == tf1.serverPort) {
+					if ((ip.equals(chatter3.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == chatter3.serverPort) {
 						serverId = id;
 					}
 				}
@@ -121,7 +121,7 @@ public class tf1 {
      * @param msg
      */
     private static void unicast_recv(String sourceIdAndMsg, ConcurrentLinkedQueue<String> sharedRecbuf) {
-    	synchronized(tf1.class) { 
+    	synchronized(chatter3.class) { 
     		sharedRecbuf.add(sourceIdAndMsg + " " + System.currentTimeMillis());
     	}
 	}
@@ -147,14 +147,14 @@ public class tf1 {
      */
     public static void main(String[] args) throws Exception {
 
-		if (args.length != 1) {
-			System.out.println("Proper Usage is: java program serverPort");
+		if (args.length != 2) {
+			System.out.println("Proper Usage is: java program serverPort config");
         	System.exit(0);
 		}	
 
-		new tf1(args[0], "config_TO");
+		new chatter3(args[0], args[1]);
 
-    	ServerSocket listener = new ServerSocket(tf1.serverPort);
+    	ServerSocket listener = new ServerSocket(chatter3.serverPort);
 
     	new inputHandler().start();
     	

@@ -1,4 +1,4 @@
-package casualOrder;
+package totalOrder;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class tf1 {
+public class chatter2 {
 
 	private static int minDelay;
 	private static int maxDelay;
@@ -23,8 +23,9 @@ public class tf1 {
 	private static int serverId;
 	
 	private static ConcurrentLinkedQueue<String> recBuf;
-	private static int[] vecStamp;
 	private static HashMap<String, String> deliverQueue;
+	private static HashMap<Integer, String> seqNums;
+	private static int Si;
 	
 
     /**
@@ -33,22 +34,23 @@ public class tf1 {
      * @param config
      * @throws Exception
      */
-    public tf1(String serverPort, String config) throws Exception {
+    public chatter2(String serverPort, String config) throws Exception {
 
     	recBuf = new ConcurrentLinkedQueue<String>();
     	
-    	vecStamp = new int[]{0,0,0,0};
+    	Si = 0;
     	
     	deliverQueue = new HashMap<String, String>();
+    	seqNums = new HashMap<Integer, String>();
     	
-    	tf1.serverPort = Integer.parseInt(serverPort);
+    	chatter2.serverPort = Integer.parseInt(serverPort);
 
-		tf1.serverAddr = InetAddress.getLocalHost().getHostAddress();
+		chatter2.serverAddr = InetAddress.getLocalHost().getHostAddress();
 
-    	System.out.println("Server address: "+ tf1.serverAddr + " port: " + tf1.serverPort);
+    	System.out.println("Server address: "+ chatter2.serverAddr + " port: " + chatter2.serverPort);
 
-    	tf1.IPs = new HashMap<Integer, String>();
-    	tf1.Ports = new HashMap<Integer, Integer>();
+    	chatter2.IPs = new HashMap<Integer, String>();
+    	chatter2.Ports = new HashMap<Integer, Integer>();
 
     	try (BufferedReader br = new BufferedReader(new FileReader(config))) {
 
@@ -65,7 +67,6 @@ public class tf1 {
 					isFirst = false;
 				}
 				else {
-					
 					String[] tokens = currLine.split(" ", 3);
 					int id = Integer.parseInt(tokens[0]);
 					String ip = tokens[1];
@@ -74,7 +75,7 @@ public class tf1 {
 					IPs.put(id, ip);
 					Ports.put(id, port);
 					
-					if ((ip.equals(tf1.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == tf1.serverPort) {
+					if ((ip.equals(chatter2.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == chatter2.serverPort) {
 						serverId = id;
 					}
 				}
@@ -98,7 +99,7 @@ public class tf1 {
 	}
     
 	/**
-	 * Send the String "serverId + msg + vecString" to process with id
+	 * Send the String "serverId + msg" to process with id
 	 * @param id
 	 * @param msg
 	 * @throws IOException
@@ -108,55 +109,37 @@ public class tf1 {
     	Socket socket = new Socket(IPs.get(id), Ports.get(id));
 
         try(PrintWriter out = new PrintWriter(socket.getOutputStream(), true)){
-        	String vecString = intArrToString(vecStamp);
-        	out.println(serverId + " " + msg + " " + vecString);
+        	out.println(serverId + " " + msg);
         	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ System.currentTimeMillis());
         }
         socket.close();
     }
-    
-    /**
-     * Convert int array to String
-     * @param vecS
-     * @return
-     */
-    private static String intArrToString(int[] vecS) {
-		StringBuilder sb = new StringBuilder();
-		for(int i=0; i<vecS.length; i++) {
-			sb.append(vecS[i]);
-			sb.append('|');
-		}
-		return sb.toString();
-	}
 
 	/**
      * Add received msg with system time into the hold-back queue
      * @param source
      * @param msg
      */
-    private static void unicast_recv(String sourceIdAndMsgAndVecString, ConcurrentLinkedQueue<String> sharedRecbuf) {
-    	synchronized(tf1.class) { 
-    		sharedRecbuf.add(sourceIdAndMsgAndVecString + " " + System.currentTimeMillis());
+    private static void unicast_recv(String sourceIdAndMsg, ConcurrentLinkedQueue<String> sharedRecbuf) {
+    	synchronized(chatter2.class) { 
+    		sharedRecbuf.add(sourceIdAndMsg + " " + System.currentTimeMillis());
     	}
 	}
     
     /**
-     * Multicast msg to all the processes in the group except itself
+     * Multicast the msg to all the processes in the group, including itself
      * @param msg
      */
     private static void multicast(String msg) {
-    	vecStamp[serverId - 1]++;
-    	System.out.println("Current vecStamp: " + intArrToString(vecStamp));
     	for(int id : IPs.keySet()) {
     		try {
-    			if (id != serverId)
-    				unicast_send(id, msg);
+    			unicast_send(id, msg);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
     	}
     }
-
+    
     /**
      * Main method
      * @param args
@@ -164,14 +147,14 @@ public class tf1 {
      */
     public static void main(String[] args) throws Exception {
 
-		if (args.length != 1) {
-			System.out.println("Proper Usage is: java program serverPort");
+		if (args.length != 2) {
+			System.out.println("Proper Usage is: java program serverPort config");
         	System.exit(0);
 		}	
 
-		new tf1(args[0], "config_CA");
+		new chatter2(args[0], args[1]);
 
-    	ServerSocket listener = new ServerSocket(tf1.serverPort);
+    	ServerSocket listener = new ServerSocket(chatter2.serverPort);
 
     	new inputHandler().start();
     	
@@ -205,80 +188,52 @@ public class tf1 {
         public void run() {
             while (true) {
             	if (!sharedRecbuf.isEmpty()) {
-            		String[] sourceIdAndMsgAndVecStringAndTime = sharedRecbuf.poll().split(" ", 4);
-            		String sourceId = sourceIdAndMsgAndVecStringAndTime[0];
-            		String msg = sourceIdAndMsgAndVecStringAndTime[1];
-            		String vecS = sourceIdAndMsgAndVecStringAndTime[2];
-            		String recvTime = sourceIdAndMsgAndVecStringAndTime[3];
-            		String sourceIdAndmsgAndTime = sourceId + " " + msg + " " + recvTime;
+            		String[] sourceIdAndMsgAndTime = sharedRecbuf.poll().split(" ");
+            		String sourceId = sourceIdAndMsgAndTime[0];
+            		int seqNum;
+            		int msgSourceId;
+        			String msg = "";
+            		String recvTime = "";
+            		String msgBody = "";
 
-            		deliverQueue.put(vecS, sourceIdAndmsgAndTime);
-            		
-            		List<String> toBeRemoved = new ArrayList<>();
-            		for (String vs : deliverQueue.keySet()) {
-            			if (isDeliverable(vs, Integer.parseInt(deliverQueue.get(vs).split(" ")[0]))) {
-            				toBeRemoved.add(vs);
-            				deliver(vs);
-            			}
-            		}                                                                                                                                                 
-            		for (String delivered : toBeRemoved) {
-            			deliverQueue.remove(delivered);
+            		if (sourceId.equals("5")) { // msg from sequencer
+            			msgSourceId = Integer.parseInt(sourceIdAndMsgAndTime[1]);
+            			seqNum = Integer.parseInt(sourceIdAndMsgAndTime[2]);
+            			msg = sourceIdAndMsgAndTime[3];
+                		seqNums.put(seqNum, msgSourceId + " " + msg);
             		}
-//            		multicast("hello");
+            		else { // msg from peers
+            			msg = sourceIdAndMsgAndTime[1];
+                		recvTime = sourceIdAndMsgAndTime[2];
+                		msgBody = sourceId + " " + msg + " " + recvTime;
+                		deliverQueue.put(sourceId + " " + msg, msgBody);
+            		}
+            	}
+            	
+            	if (!seqNums.isEmpty()) {
+            		int minSeqNum = Collections.min(seqNums.keySet());
+            		String msgAndSourceId = seqNums.get(minSeqNum);
+            		if (minSeqNum == Si + 1 && deliverQueue.containsKey(msgAndSourceId)) {
+            			String mb = deliverQueue.get(msgAndSourceId);
+            			deliver(mb);
+            			deliverQueue.remove(msgAndSourceId);
+            			seqNums.remove(minSeqNum);
+            			Si++;
+            		}
             	}
             }
         }
 
     	/**
-    	 * Deliver the msg form deliverQueue based on vector timestamp
-    	 * @param vs: vector timestamp
+    	 * Deliver the msg from msg body
+    	 * @param mb: msg body
     	 */
-		private void deliver(String vs) {
-			String[] sourceIdAndmsgAndTime = deliverQueue.get(vs).split(" ", 3);
-			vecStamp[Integer.parseInt(sourceIdAndmsgAndTime[0]) - 1]++;
-			System.out.println(intArrToString(vecStamp) + " Received "+ sourceIdAndmsgAndTime[1] + " from process "+ sourceIdAndmsgAndTime[0] +", system time is ­­­­­­­­­­­­­" + sourceIdAndmsgAndTime[2]);
+		private void deliver(String mb) {
+			String[] sourceIdAndMsgAndTime = mb.split(" ", 3);
+			System.out.println("Received "+ sourceIdAndMsgAndTime[1] + " from process "+ sourceIdAndMsgAndTime[0] +", system time is ­­­­­­­­­­­­­" + sourceIdAndMsgAndTime[2]);
 			
 		}
 
-		/**
-		 * Judge if a msg with vector timestamp vecS is deliverable or not
-		 * @param vecS
-		 * @param sourceId
-		 * @return
-		 */
-		public boolean isDeliverable(String vecS, int sourceId) {
-			List<Integer> vs = stringToIntArr(vecS);
-			for (int i=0; i<vs.size(); i++) {
-				if (i == sourceId - 1) {
-					if (vecStamp[i] + 1 != vs.get(i)) {
-						return false;
-					}
-				}
-				else { 
-					if (vecStamp[i] < vs.get(i)) {
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-
-		/** 
-		 * Convert a String into List<Integer>
-		 * @param str
-		 * @return
-		 */
-		private List<Integer> stringToIntArr(String str) {
-			List<Integer> res = new ArrayList<Integer>();
-			int i = 0;
-			for (int j=0; j<str.length(); j++) {
-				if (str.charAt(j) == '|') {
-					res.add(Integer.parseInt(str.substring(i, j))); 
-					i = j + 1;
-				}
-			}
-			return res;
-		}
     }
     
     /**
@@ -299,8 +254,8 @@ public class tf1 {
     			System.out.println("Now you can type msg below: ");
     			
     			String userInput;
-                while ((userInput = stdIn.readLine()) != null) {
-        				
+                while ((userInput = stdIn.readLine()) != null) {			
+
                     if(userInput.indexOf("send") == 0) {
                     	String[] tokens = userInput.split(" ", 3);
                     	int sendToID = Integer.parseInt(tokens[1]);
@@ -330,6 +285,7 @@ public class tf1 {
     	private Socket socket;
     	private ConcurrentLinkedQueue<String> sharedRecbuf;
 
+    	// Constructor
     	public clientHandler(Socket socket, ConcurrentLinkedQueue<String> sharedRecbuf) {
     		this.sharedRecbuf = sharedRecbuf;
     		this.socket = socket;
@@ -341,13 +297,13 @@ public class tf1 {
     			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             	while(true) {
-            		String input = in.readLine();
+            		String rawInput = in.readLine();
             		
-	                if (input == null) {
+	                if (rawInput == null) {
 	                    return;
 	                }
 	                
-	                new msgGetter(input, sharedRecbuf).start();
+	                new msgGetter(rawInput, sharedRecbuf).start();
 	                
             	}
                  

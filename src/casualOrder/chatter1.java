@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class tf4 {
+public class chatter1 {
 
 	private static int minDelay;
 	private static int maxDelay;
@@ -33,7 +33,7 @@ public class tf4 {
      * @param config
      * @throws Exception
      */
-    public tf4(String serverPort, String config) throws Exception {
+    public chatter1(String serverPort, String config) throws Exception {
 
     	recBuf = new ConcurrentLinkedQueue<String>();
     	
@@ -41,14 +41,14 @@ public class tf4 {
     	
     	deliverQueue = new HashMap<String, String>();
     	
-    	tf4.serverPort = Integer.parseInt(serverPort);
+    	chatter1.serverPort = Integer.parseInt(serverPort);
 
-		tf4.serverAddr = InetAddress.getLocalHost().getHostAddress();
+		chatter1.serverAddr = InetAddress.getLocalHost().getHostAddress();
 
-    	System.out.println("Server address: "+ tf4.serverAddr + " port: " + tf4.serverPort);
+    	System.out.println("Server address: "+ chatter1.serverAddr + " port: " + chatter1.serverPort);
 
-    	tf4.IPs = new HashMap<Integer, String>();
-    	tf4.Ports = new HashMap<Integer, Integer>();
+    	chatter1.IPs = new HashMap<Integer, String>();
+    	chatter1.Ports = new HashMap<Integer, Integer>();
 
     	try (BufferedReader br = new BufferedReader(new FileReader(config))) {
 
@@ -74,7 +74,7 @@ public class tf4 {
 					IPs.put(id, ip);
 					Ports.put(id, port);
 					
-					if ((ip.equals(tf4.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == tf4.serverPort) {
+					if ((ip.equals(chatter1.serverAddr) || ip.equals("localhost") || ip.equals("127.0.0.1")) && port == chatter1.serverPort) {
 						serverId = id;
 					}
 				}
@@ -135,7 +135,7 @@ public class tf4 {
      * @param msg
      */
     private static void unicast_recv(String sourceIdAndMsgAndVecString, ConcurrentLinkedQueue<String> sharedRecbuf) {
-    	synchronized(tf4.class) { 
+    	synchronized(chatter1.class) { 
     		sharedRecbuf.add(sourceIdAndMsgAndVecString + " " + System.currentTimeMillis());
     	}
 	}
@@ -164,14 +164,14 @@ public class tf4 {
      */
     public static void main(String[] args) throws Exception {
 
-		if (args.length != 1) {
-			System.out.println("Proper Usage is: java program serverPort");
+		if (args.length != 2) {
+			System.out.println("Proper Usage is: java program serverPort config");
         	System.exit(0);
 		}	
 
-		new tf4(args[0], "config_CA");
+		new chatter1(args[0], args[1]);
 
-    	ServerSocket listener = new ServerSocket(tf4.serverPort);
+    	ServerSocket listener = new ServerSocket(chatter1.serverPort);
 
     	new inputHandler().start();
     	

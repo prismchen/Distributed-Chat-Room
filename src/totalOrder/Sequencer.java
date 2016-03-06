@@ -149,13 +149,13 @@ public class Sequencer {
      */
     public static void main(String[] args) throws Exception {
 
-		if (args.length != 1) {
-			System.out.println("Proper Usage is: java program serverPort");
+		if (args.length != 2) {
+			System.out.println("Proper Usage is: java program serverPort config");
         	System.exit(0);
 		}	
 
 		
-    	new Sequencer(args[0], "config_TO");
+    	new Sequencer(args[0], args[1]);
     	
 		ServerSocket listener = new ServerSocket(Sequencer.serverPort);
 
