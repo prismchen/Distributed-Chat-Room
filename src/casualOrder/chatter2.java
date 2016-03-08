@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +111,7 @@ public class chatter2 {
         try(PrintWriter out = new PrintWriter(socket.getOutputStream(), true)){
         	String vecString = intArrToString(vecStamp);
         	out.println(serverId + " " + msg + " " + vecString);
-        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ System.currentTimeMillis());
+        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ new Timestamp(System.currentTimeMillis()).toString());
         }
         socket.close();
     }
@@ -136,7 +137,7 @@ public class chatter2 {
      */
     private static void unicast_recv(String sourceIdAndMsgAndVecString, ConcurrentLinkedQueue<String> sharedRecbuf) {
     	synchronized(chatter2.class) { 
-    		sharedRecbuf.add(sourceIdAndMsgAndVecString + " " + System.currentTimeMillis());
+    		sharedRecbuf.add(sourceIdAndMsgAndVecString + " " + new Timestamp(System.currentTimeMillis()).toString());
     	}
 	}
     
@@ -224,7 +225,7 @@ public class chatter2 {
             		for (String delivered : toBeRemoved) {
             			deliverQueue.remove(delivered);
             		}
-            		// multicast("hello");
+            		multicast("helslo");
             	}
             }
         }

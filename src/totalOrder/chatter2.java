@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +111,7 @@ public class chatter2 {
 
         try(PrintWriter out = new PrintWriter(socket.getOutputStream(), true)){
         	out.println(serverId + " " + msg);
-        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ System.currentTimeMillis());
+        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ new Timestamp(System.currentTimeMillis()).toString());
         }
         socket.close();
     }
@@ -122,7 +123,7 @@ public class chatter2 {
      */
     private static void unicast_recv(String sourceIdAndMsg, ConcurrentLinkedQueue<String> sharedRecbuf) {
     	synchronized(chatter2.class) { 
-    		sharedRecbuf.add(sourceIdAndMsg + " " + System.currentTimeMillis());
+    		sharedRecbuf.add(sourceIdAndMsg + " " + new Timestamp(System.currentTimeMillis()).toString());
     	}
 	}
     
@@ -204,7 +205,7 @@ public class chatter2 {
             		}
             		else { // msg from peers
             			msg = sourceIdAndMsgAndTime[1];
-                		recvTime = sourceIdAndMsgAndTime[2];
+            			recvTime = sourceIdAndMsgAndTime[2] + " " + sourceIdAndMsgAndTime[3];
                 		msgBody = sourceId + " " + msg + " " + recvTime;
                 		deliverQueue.put(sourceId + " " + msg, msgBody);
             		}

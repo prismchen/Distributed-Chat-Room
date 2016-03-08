@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.io.FileReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -109,7 +110,7 @@ public class Sequencer {
 
         try(PrintWriter out = new PrintWriter(socket.getOutputStream(), true)){
         	out.println(serverId + " " + msg);
-        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ System.currentTimeMillis());
+        	System.out.println("Sent "+ msg +" to process "+ id +", system time is ­­­­­­­­­­­­­"+ new Timestamp(System.currentTimeMillis()).toString());
         }
         socket.close();
     }
@@ -122,7 +123,7 @@ public class Sequencer {
      */
     private static void unicast_recv(String sourceIdAndMsg, ConcurrentLinkedQueue<String> sharedRecbuf) {
     	synchronized(Sequencer.class) { 
-    		sharedRecbuf.add(sourceIdAndMsg + " " + System.currentTimeMillis());
+    		sharedRecbuf.add(sourceIdAndMsg + " " + new Timestamp(System.currentTimeMillis()).toString());
     	}
 	}
     
